@@ -1,0 +1,15 @@
+.body {
+  height: 100svh;
+  border: 2px solid white;
+  background-color: black;
+
+  position: relative;
+}
+
+.box {
+  height: 100px;
+  width: 100px;
+  position: absolute;
+  border: 1px solid white;
+  color: white;
+}
