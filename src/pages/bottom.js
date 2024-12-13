@@ -1,29 +1,38 @@
 import styles from "@/styles/bottom.module.scss";
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 
-function _BottomSheet({ children, maxHeight = 0 }, ref) {
+function BottomSheet({ initialHeight, children, maxHeight = 0, isExpanded }) {
   const bottomSheetRef = useRef(null);
 
-  useImperativeHandle(ref, () => {
-    return {
-      init: (height = "100%") => {
-        bottomSheetRef.current.style.transform = `translateY(${height})`;
-      },
-    };
-  });
+  const translate = (height) => {
+    const translate = `calc(100% - ${height}px)`;
+    bottomSheetRef.current.style.transform = `translateY(${translate})`;
+  };
+
+  const expand = () => {
+    translate(maxHeight);
+    bottomSheetRef.current.style.overflow = "auto";
+  };
+
+  const collapse = () => {
+    bottomSheetRef.current.style.overflow = "hidden";
+    translate(initialHeight);
+  };
+
+  useEffect(() => {
+    if (!isExpanded) {
+      collapse();
+    } else {
+      expand();
+    }
+  }, [isExpanded, maxHeight, initialHeight]);
 
   return (
     <div
       ref={bottomSheetRef}
       className={styles.modalBottomSheet}
       style={{
-        maxHeight,
+        maxHeight: `${maxHeight}px`,
       }}
     >
       {children}
@@ -31,23 +40,42 @@ function _BottomSheet({ children, maxHeight = 0 }, ref) {
   );
 }
 
-const BottomSheet = forwardRef(_BottomSheet);
+const Slider = () => {
+  const items = [1, 2, 3, 4, 5];
+  return (
+    <div className={styles.slider}>
+      {items.map((item) => (
+        <div key={item} className={styles.sliderItem}>
+          Content: {item}
+        </div>
+      ))}
+    </div>
+  );
+};
 
-const BottomSheetContent = () => {
+const BottomSheetContent = ({ height, isExpanded }) => {
+  const titleRef = useRef(null);
   const contentRef = useRef(null);
-  const bottomSheetRef = useRef(null);
+  const [initHeight, setInitHeight] = useState(0);
 
   useEffect(() => {
-    const { top } = contentRef.current.getBoundingClientRect();
-    // console.log("Top: ", top);
-    bottomSheetRef.current.init(top);
+    const contentRect = contentRef.current.getBoundingClientRect();
+    const titleRect = titleRef.current.getBoundingClientRect();
+    const offset = contentRect.top - titleRect.top;
+    setInitHeight(offset);
   }, []);
 
   return (
-    <BottomSheet ref={bottomSheetRef}>
-      <div className={styles.title}>Product Name</div>
+    <BottomSheet
+      initialHeight={initHeight}
+      maxHeight={height}
+      isExpanded={isExpanded}
+    >
+      <div className={styles.title} ref={titleRef}>
+        Product Name
+      </div>
       <div>$120.00</div>
-      <div className={styles.button}>Add To Card</div>
+      <div className={styles.button}>Add To Cart</div>
       <div className={styles.content} ref={contentRef}>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris non est
         vitae risus interdum vestibulum non vitae nulla. Integer mollis nibh id
@@ -89,14 +117,39 @@ const BottomSheetContent = () => {
 };
 
 export default function Bottom() {
+  const heightRef = useRef(null);
+  const bottomSheetRef = useRef(null);
+  const [height, setHeight] = useState(0);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    const { height } = heightRef.current.getBoundingClientRect();
+    setHeight(height - 10);
+  }, []);
+
+  const onBottomSheetToggle = () => {
+    setExpanded((prev) => !prev);
+  };
+
   return (
     <div className={styles.bottom}>
       <div className={styles.bottomContainer}>
         <div className={styles.contentContainer}>
-          <div className={styles.header}>Header</div>
-          <div className={styles.body}>Content</div>
+          <div className={styles.header}>
+            Header
+            <div className={styles.open} onClick={onBottomSheetToggle}>
+              Toggle
+            </div>
+          </div>
+          <div ref={heightRef} className={styles.body}>
+            <Slider />
+          </div>
         </div>
-        <BottomSheetContent />
+        <BottomSheetContent
+          isExpanded={expanded}
+          ref={bottomSheetRef}
+          height={height}
+        />
       </div>
     </div>
   );

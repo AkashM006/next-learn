@@ -1,12 +1,15 @@
 .bottom {
   $clr-bg: black;
   $clr-primary: white;
+  $clr-secondary: crimson;
 
   background-color: $clr-bg;
   color: $clr-primary;
 
   height: 100svh;
   padding: 10px;
+
+  overflow: hidden;
 
   .bottomContainer {
     border: 1px solid $clr-primary;
@@ -25,9 +28,18 @@
         background-color: $clr-primary;
         color: $clr-bg;
         padding: 10px;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .open {
+          border: 1px solid $clr-bg;
+          border-radius: 4px;
+          padding: 5px 10px;
+        }
       }
       .body {
-        border: 1px solid crimson;
         flex: 1;
         padding: 10px;
 
@@ -79,5 +91,15 @@
   }
 
   .content {
+  }
+
+  .slider {
+    height: 100%;
+    .sliderItem {
+      height: 70vh;
+      text-align: center;
+      align-content: center;
+      border: 1px solid $clr-secondary;
+    }
   }
 }
