@@ -6,7 +6,7 @@ function BottomSheet({ initialHeight, children, maxHeight = 0, isExpanded }) {
 
   const translate = (height) => {
     const translate = `calc(100% - ${height}px)`;
-    bottomSheetRef.current.style.transform = `translateY(${translate})`;
+    bottomSheetRef.current.style.top = translate;
   };
 
   const expand = () => {
@@ -118,7 +118,6 @@ const BottomSheetContent = ({ height, isExpanded }) => {
 
 export default function Bottom() {
   const heightRef = useRef(null);
-  const bottomSheetRef = useRef(null);
   const [height, setHeight] = useState(0);
   const [expanded, setExpanded] = useState(false);
 
@@ -145,11 +144,7 @@ export default function Bottom() {
             <Slider />
           </div>
         </div>
-        <BottomSheetContent
-          isExpanded={expanded}
-          ref={bottomSheetRef}
-          height={height}
-        />
+        <BottomSheetContent isExpanded={expanded} height={height} />
       </div>
     </div>
   );

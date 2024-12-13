@@ -62,11 +62,11 @@
     max-height: 300px;
 
     position: absolute;
-    bottom: 0;
+    // bottom: 0;
+
+    top: 100%;
     left: 0;
     right: 0;
-
-    transform: translateY(100%);
 
     padding: 10px;
 
