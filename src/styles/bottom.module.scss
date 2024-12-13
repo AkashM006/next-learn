@@ -72,7 +72,9 @@
 
     text-align: left;
 
-    transition-duration: 250ms;
+    transition-duration: 100ms;
+
+    touch-action: none;
   }
 
   .title {

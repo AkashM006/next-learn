@@ -4,19 +4,45 @@ import { useEffect, useRef, useState } from "react";
 function BottomSheet({ initialHeight, children, maxHeight = 0, isExpanded }) {
   const bottomSheetRef = useRef(null);
 
-  const translate = (height) => {
+  const startY = useRef(0);
+  const newY = useRef(0);
+
+  const isExpandedRef = useRef(false);
+
+  const translateTop = (height) => {
     const translate = `calc(100% - ${height}px)`;
     bottomSheetRef.current.style.top = translate;
   };
 
   const expand = () => {
-    translate(maxHeight);
+    translateTop(maxHeight);
     bottomSheetRef.current.style.overflow = "auto";
   };
 
   const collapse = () => {
     bottomSheetRef.current.style.overflow = "hidden";
-    translate(initialHeight);
+    translateTop(initialHeight);
+  };
+
+  const translate = (offset) => {
+    bottomSheetRef.current.style.transform = `translateY(-${offset}px)`;
+  };
+
+  const translateExpand = () => {
+    const maxTranslate = maxHeight - initialHeight;
+    newY.current = maxTranslate;
+    startY.current = maxTranslate;
+    translate(maxTranslate);
+
+    isExpandedRef.current = true;
+  };
+
+  const translateCollapse = () => {
+    translate(0);
+    newY.current = 0;
+    startY.current = 0;
+
+    isExpandedRef.current = false;
   };
 
   useEffect(() => {
@@ -27,6 +53,37 @@ function BottomSheet({ initialHeight, children, maxHeight = 0, isExpanded }) {
     }
   }, [isExpanded, maxHeight, initialHeight]);
 
+  const onTouchStart = (e) => {
+    startY.current = e.touches[0].clientY;
+  };
+
+  const onTouchMove = (e) => {
+    const { clientY } = e.touches[0];
+    const maxTranslate = maxHeight - initialHeight;
+
+    const temp = newY.current + startY.current - clientY;
+    if (temp > maxTranslate || temp < 0) return;
+    newY.current += startY.current - clientY;
+    startY.current = clientY;
+
+    requestAnimationFrame(() => {
+      translate(newY.current);
+    });
+  };
+
+  const onTouchEnd = (e) => {
+    if (!isExpandedRef.current) {
+      if (newY.current < 25) {
+        translateCollapse();
+      } else {
+        translateExpand();
+      }
+    } else {
+      const maxTranslate = maxHeight - initialHeight;
+      if (newY.current - maxTranslate < 0) translateCollapse();
+    }
+  };
+
   return (
     <div
       ref={bottomSheetRef}
@@ -34,6 +91,9 @@ function BottomSheet({ initialHeight, children, maxHeight = 0, isExpanded }) {
       style={{
         maxHeight: `${maxHeight}px`,
       }}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
     >
       {children}
     </div>
