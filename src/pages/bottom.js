@@ -1,7 +1,7 @@
 import styles from "@/styles/bottom.module.scss";
 import { useEffect, useRef, useState } from "react";
 
-function BottomSheet({ initialHeight, children, maxHeight = 0, isExpanded }) {
+function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
   const bottomSheetRef = useRef(null);
 
   const startY = useRef(0);
@@ -52,15 +52,12 @@ function BottomSheet({ initialHeight, children, maxHeight = 0, isExpanded }) {
   };
 
   useEffect(() => {
-    if (!isExpanded) {
-      collapse();
-    }
-  }, [isExpanded, maxHeight, initialHeight]);
+    collapse();
+  }, [maxHeight, initialHeight]);
 
   const onTouchStart = (e) => {
     startY.current = e.touches[0].clientY;
     oldScroll.current = e.touches[0].clientY;
-    console.log("Touch Started: ", bottomSheetRef.current.scrollTop);
 
     topReached.current = bottomSheetRef.current.scrollTop === 0;
   };
@@ -97,23 +94,20 @@ function BottomSheet({ initialHeight, children, maxHeight = 0, isExpanded }) {
   };
 
   const onTouchEnd = (e) => {
+    const minOffset = 25;
     if (!isExpandedRef.current) {
-      if (newY.current < 25) {
+      if (newY.current < minOffset) {
         translateCollapse();
       } else {
         translateExpand();
       }
     } else {
       const maxTranslate = maxHeight - initialHeight;
-      if (newY.current - maxTranslate < -50) translateCollapse();
+      if (newY.current - maxTranslate < -minOffset) translateCollapse();
       else {
         translateExpand();
       }
     }
-  };
-
-  const onScroll = (e) => {
-    // console.log("Scrolled", bottomSheetRef.current.offsetTop);
   };
 
   return (
@@ -126,17 +120,21 @@ function BottomSheet({ initialHeight, children, maxHeight = 0, isExpanded }) {
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
-      onScroll={onScroll}
     >
       {children}
     </div>
   );
 }
 
-const Slider = () => {
+const Slider = ({ paddingBottom }) => {
   const items = [1, 2, 3, 4, 5];
   return (
-    <div className={styles.slider}>
+    <div
+      className={styles.slider}
+      style={{
+        paddingBottom: `${Math.round(paddingBottom)}px`,
+      }}
+    >
       {items.map((item) => (
         <div key={item} className={styles.sliderItem}>
           Content: {item}
@@ -146,10 +144,14 @@ const Slider = () => {
   );
 };
 
-const BottomSheetContent = ({ height, isExpanded }) => {
+const BottomSheetContent = ({
+  maxHeight,
+  isExpanded,
+  setInitHeight,
+  initHeight,
+}) => {
   const titleRef = useRef(null);
   const contentRef = useRef(null);
-  const [initHeight, setInitHeight] = useState(0);
 
   useEffect(() => {
     const contentRect = contentRef.current.getBoundingClientRect();
@@ -161,7 +163,7 @@ const BottomSheetContent = ({ height, isExpanded }) => {
   return (
     <BottomSheet
       initialHeight={initHeight}
-      maxHeight={height}
+      maxHeight={maxHeight}
       isExpanded={isExpanded}
     >
       <div className={styles.title} ref={titleRef}>
@@ -213,6 +215,7 @@ export default function Bottom() {
   const heightRef = useRef(null);
   const [height, setHeight] = useState(0);
   const [expanded, setExpanded] = useState(false);
+  const [initHeight, setInitHeight] = useState(0);
 
   useEffect(() => {
     const { height } = heightRef.current.getBoundingClientRect();
@@ -234,10 +237,15 @@ export default function Bottom() {
             </div>
           </div>
           <div ref={heightRef} className={styles.body}>
-            <Slider />
+            <Slider paddingBottom={initHeight} />
           </div>
         </div>
-        <BottomSheetContent isExpanded={expanded} height={height} />
+        <BottomSheetContent
+          isExpanded={expanded}
+          maxHeight={height}
+          initHeight={initHeight}
+          setInitHeight={setInitHeight}
+        />
       </div>
     </div>
   );
