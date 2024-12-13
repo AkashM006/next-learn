@@ -74,7 +74,7 @@
 
     transition-duration: 100ms;
 
-    touch-action: none;
+    // touch-action: none;
   }
 
   .title {
@@ -90,9 +90,6 @@
     padding: 10px 20px;
 
     margin-bottom: 20px;
-  }
-
-  .content {
   }
 
   .slider {

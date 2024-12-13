@@ -7,16 +7,16 @@ function BottomSheet({ initialHeight, children, maxHeight = 0, isExpanded }) {
   const startY = useRef(0);
   const newY = useRef(0);
 
+  const oldScroll = useRef(0);
+  const newScroll = useRef(0);
+
+  const topReached = useRef(false);
+
   const isExpandedRef = useRef(false);
 
   const translateTop = (height) => {
     const translate = `calc(100% - ${height}px)`;
     bottomSheetRef.current.style.top = translate;
-  };
-
-  const expand = () => {
-    translateTop(maxHeight);
-    bottomSheetRef.current.style.overflow = "auto";
   };
 
   const collapse = () => {
@@ -35,6 +35,10 @@ function BottomSheet({ initialHeight, children, maxHeight = 0, isExpanded }) {
     translate(maxTranslate);
 
     isExpandedRef.current = true;
+    topReached.current = true;
+
+    bottomSheetRef.current.style.overflow = "auto";
+    document.body.style.overscrollBehaviorY = "none";
   };
 
   const translateCollapse = () => {
@@ -43,23 +47,44 @@ function BottomSheet({ initialHeight, children, maxHeight = 0, isExpanded }) {
     startY.current = 0;
 
     isExpandedRef.current = false;
+    bottomSheetRef.current.style.overflow = "hidden";
+    document.body.style.overscrollBehaviorY = "auto";
   };
 
   useEffect(() => {
     if (!isExpanded) {
       collapse();
-    } else {
-      expand();
     }
   }, [isExpanded, maxHeight, initialHeight]);
 
   const onTouchStart = (e) => {
     startY.current = e.touches[0].clientY;
+    oldScroll.current = e.touches[0].clientY;
+    console.log("Touch Started: ", bottomSheetRef.current.scrollTop);
+
+    topReached.current = bottomSheetRef.current.scrollTop === 0;
   };
 
   const onTouchMove = (e) => {
     const { clientY } = e.touches[0];
     const maxTranslate = maxHeight - initialHeight;
+
+    newScroll.current = e.touches[0].clientY;
+
+    const isScrollingDown = newScroll.current > oldScroll.current;
+
+    if (isExpandedRef.current && !isScrollingDown) return;
+
+    if (isExpandedRef.current && bottomSheetRef.current.scrollTop > 0) return;
+
+    if (
+      isExpandedRef.current &&
+      isScrollingDown &&
+      bottomSheetRef.current.scrollTop === 0 &&
+      !topReached.current
+    ) {
+      return;
+    }
 
     const temp = newY.current + startY.current - clientY;
     if (temp > maxTranslate || temp < 0) return;
@@ -80,8 +105,15 @@ function BottomSheet({ initialHeight, children, maxHeight = 0, isExpanded }) {
       }
     } else {
       const maxTranslate = maxHeight - initialHeight;
-      if (newY.current - maxTranslate < 0) translateCollapse();
+      if (newY.current - maxTranslate < -50) translateCollapse();
+      else {
+        translateExpand();
+      }
     }
+  };
+
+  const onScroll = (e) => {
+    // console.log("Scrolled", bottomSheetRef.current.offsetTop);
   };
 
   return (
@@ -94,6 +126,7 @@ function BottomSheet({ initialHeight, children, maxHeight = 0, isExpanded }) {
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
+      onScroll={onScroll}
     >
       {children}
     </div>
