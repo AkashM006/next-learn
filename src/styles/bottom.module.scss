@@ -1,0 +1,83 @@
+.bottom {
+  $clr-bg: black;
+  $clr-primary: white;
+
+  background-color: $clr-bg;
+  color: $clr-primary;
+
+  height: 100svh;
+  padding: 10px;
+
+  .bottomContainer {
+    border: 1px solid $clr-primary;
+    height: 100%;
+    position: relative;
+
+    text-align: center;
+    align-content: center;
+
+    .contentContainer {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+
+      .header {
+        background-color: $clr-primary;
+        color: $clr-bg;
+        padding: 10px;
+      }
+      .body {
+        border: 1px solid crimson;
+        flex: 1;
+        padding: 10px;
+
+        overflow: auto;
+      }
+    }
+  }
+
+  .modalBottomSheet {
+    margin-inline: 5px;
+    background-color: rgba($clr-bg, 0.7);
+
+    border-radius: 7px;
+    border: 1px solid $clr-primary;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+
+    overflow: hidden;
+
+    max-height: 300px;
+
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    transform: translateY(100%);
+
+    padding: 10px;
+
+    text-align: left;
+
+    transition-duration: 250ms;
+  }
+
+  .title {
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .button {
+    margin-block: 10px;
+    border: 1px solid $clr-primary;
+    border-radius: 5px;
+    width: fit-content;
+    padding: 10px 20px;
+
+    margin-bottom: 20px;
+  }
+
+  .content {
+  }
+}
