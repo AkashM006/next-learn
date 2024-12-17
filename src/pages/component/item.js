@@ -38,7 +38,9 @@ function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
     topReached.current = true;
 
     bottomSheetRef.current.style.overflow = "auto";
-    document.body.style.overscrollBehaviorY = "none";
+
+    document.documentElement.style.overflow = "none";
+    document.documentElement.style.overscrollBehaviorY = "none";
   };
 
   const translateCollapse = () => {
@@ -47,8 +49,11 @@ function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
     startY.current = 0;
 
     isExpandedRef.current = false;
+
     bottomSheetRef.current.style.overflow = "hidden";
-    document.body.style.overscrollBehaviorY = "auto";
+
+    document.documentElement.style.overflow = "auto";
+    document.documentElement.style.overscrollBehaviorY = "auto";
   };
 
   useEffect(() => {

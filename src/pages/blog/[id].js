@@ -20,14 +20,16 @@ export default function Blog({ data }) {
   }, []);
 
   const initialLoad = () => {
-    setTimeout(() => {
-      const allBlogs = Array.from({ length: 100 }, (_, index) => index + 1);
+    window.localStorage.setItem("length", 100);
+    const length = JSON.parse(window.localStorage.getItem("length"));
+    // setTimeout(() => {
+    const allBlogs = Array.from({ length }, (_, index) => index + 1);
 
-      setSliderItems(allBlogs);
-      initialIndexRef.current = +id - 1;
+    setSliderItems(allBlogs);
+    initialIndexRef.current = +id - 1;
 
-      console.log("Loaded");
-    }, 5000);
+    console.log("Loaded");
+    // }, 5000);
   };
 
   const itemComp = <Item id={id} />;
