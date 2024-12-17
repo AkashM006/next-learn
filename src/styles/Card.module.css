@@ -1,0 +1,66 @@
+.container {
+  height: 100%;
+  border: 2px solid crimson;
+
+  text-align: center;
+  align-content: center;
+}
+
+.detail {
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background-color: black;
+  color: white;
+  font-weight: bold;
+  padding: 1em;
+}
+
+.body {
+  flex: 1;
+  position: relative;
+}
+
+.slider {
+  border: 1px solid crimson;
+  height: 100%;
+  overflow: scroll;
+  padding-bottom: 10px;
+
+  background-color: white;
+  color: black;
+}
+
+.sliderItem {
+  border: 1px solid black;
+  height: 90%;
+}
+
+.description {
+  border: 2px solid green;
+  background-color: white;
+  color: black;
+  position: absolute;
+  z-index: 11;
+  top: 75%;
+  width: 100%;
+
+  text-align: center;
+
+  padding: 10px;
+}
+
+.descriptionContent {
+  margin-top: 50px;
+}
+
+.tray {
+  height: 1px;
+  width: 100px;
+  border: 1px solid black;
+  margin: 0 auto;
+  margin-bottom: 20px;
+}

@@ -1,7 +1,8 @@
 .container {
-  height: 100vh;
-  border: 2px solid crimson;
+  height: 100svh;
+  overflow: hidden;
+}
 
-  text-align: center;
-  align-content: center;
+.fullHeight {
+  height: 100%;
 }
