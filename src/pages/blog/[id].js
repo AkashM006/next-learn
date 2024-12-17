@@ -30,10 +30,12 @@ export default function Blog({ data }) {
     }, 5000);
   };
 
+  const itemComp = <Item id={id} />;
+
   return (
     <div className={styles.container}>
       {sliderItems.length < 1 ? (
-        <Item id={id} />
+        itemComp
       ) : (
         <Swiper
           className={styles.fullHeight}
@@ -43,7 +45,7 @@ export default function Blog({ data }) {
         >
           {sliderItems.map((item) => (
             <SwiperSlide key={item} className={styles.fullHeight}>
-              <Item id={item} />
+              {item === id ? itemComp : <Item id={item} />}
             </SwiperSlide>
           ))}
         </Swiper>

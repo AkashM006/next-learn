@@ -113,7 +113,7 @@ function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
   return (
     <div
       ref={bottomSheetRef}
-      className={styles.modalBottomSheet}
+      className={`${styles.modalBottomSheet} swiper-no-swiping`}
       style={{
         maxHeight: `${maxHeight}px`,
       }}
