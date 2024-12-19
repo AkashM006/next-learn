@@ -1,7 +1,6 @@
 import styles from "@/styles/bottom.module.scss";
 import { useEffect, useRef, useState } from "react";
 
-// function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
 function BottomSheet({ children, maxHeight = 0, top = 1 }) {
   const bottomSheetRef = useRef(null);
 
