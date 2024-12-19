@@ -20,6 +20,14 @@ function BottomSheet({ children, maxHeight = 0, top = 1 }) {
     bottomSheetRef.current.style.transform = `translateY(-${offset}px)`;
   };
 
+  const disableScroll = () => {
+    bottomSheetRef.current.style.overflow = "hidden";
+  };
+
+  const enableScroll = () => {
+    bottomSheetRef.current.style.overflow = "auto";
+  };
+
   const translateExpand = () => {
     const maxTranslate = maxHeight - initialHeight;
     newY.current = maxTranslate;
@@ -29,7 +37,7 @@ function BottomSheet({ children, maxHeight = 0, top = 1 }) {
     isExpandedRef.current = true;
     topReached.current = true;
 
-    bottomSheetRef.current.style.overflow = "auto";
+    enableScroll();
 
     document.documentElement.style.overflow = "none";
     document.documentElement.style.overscrollBehaviorY = "none";
@@ -42,7 +50,7 @@ function BottomSheet({ children, maxHeight = 0, top = 1 }) {
 
     isExpandedRef.current = false;
 
-    bottomSheetRef.current.style.overflow = "hidden";
+    disableScroll();
 
     document.documentElement.style.overflow = "auto";
     document.documentElement.style.overscrollBehaviorY = "auto";
@@ -78,29 +86,24 @@ function BottomSheet({ children, maxHeight = 0, top = 1 }) {
 
     newScroll.current = e.touches[0].clientY;
 
-    const isScrollingDown = newScroll.current > oldScroll.current;
-
-    if (isExpandedRef.current && !isScrollingDown) return;
-
     if (isExpandedRef.current && bottomSheetRef.current.scrollTop > 0) return;
-
-    if (
-      isExpandedRef.current &&
-      isScrollingDown &&
-      bottomSheetRef.current.scrollTop === 0 &&
-      !topReached.current
-    ) {
-      return;
-    }
 
     const temp = newY.current + startY.current - clientY;
     if (temp > maxTranslate || temp < 0) return;
+
+    const isMovingDown = temp < newY.current;
+
+    if (isMovingDown) {
+      disableScroll();
+    }
+
     newY.current += startY.current - clientY;
     startY.current = clientY;
 
     requestAnimationFrame(() => {
       translate(newY.current);
     });
+    oldScroll.current = newScroll.current;
   };
 
   const onTouchEnd = (e) => {
