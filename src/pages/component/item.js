@@ -1,7 +1,8 @@
 import styles from "@/styles/bottom.module.scss";
 import { useEffect, useRef, useState } from "react";
 
-function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
+// function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
+function BottomSheet({ children, maxHeight = 0, top = 1 }) {
   const bottomSheetRef = useRef(null);
 
   const startY = useRef(0);
@@ -13,6 +14,8 @@ function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
   const topReached = useRef(false);
 
   const isExpandedRef = useRef(false);
+
+  const [initialHeight, setInitialHeight] = useState(0);
 
   const translateTop = (height) => {
     const translate = `calc(100% - ${height}px)`;
@@ -56,9 +59,25 @@ function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
     document.documentElement.style.overscrollBehaviorY = "auto";
   };
 
+  const transitionInit = () => {
+    if (bottomSheetRef.current) {
+      const parent = bottomSheetRef.current.offsetParent;
+      const parentHeight = parent.offsetHeight;
+      setInitialHeight(parentHeight * (1 - top));
+    }
+    setTimeout(() => {
+      if (bottomSheetRef.current)
+        bottomSheetRef.current.style.transitionDuration = "100ms";
+    }, 0);
+  };
+
   useEffect(() => {
-    collapse();
+    // collapse();
   }, [maxHeight, initialHeight]);
+
+  useEffect(() => {
+    transitionInit();
+  }, [bottomSheetRef]);
 
   const onTouchStart = (e) => {
     startY.current = e.touches[0].clientY;
@@ -121,6 +140,7 @@ function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
       className={`${styles.modalBottomSheet} swiper-no-swiping`}
       style={{
         maxHeight: `${maxHeight}px`,
+        top: `${top * 100}%`,
       }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
@@ -161,7 +181,7 @@ const BottomSheetContent = ({ maxHeight, setInitHeight, initHeight }) => {
   }, []);
 
   return (
-    <BottomSheet initialHeight={initHeight} maxHeight={maxHeight}>
+    <BottomSheet initialHeight={initHeight} maxHeight={maxHeight} top={0.7}>
       <div className={styles.title} ref={titleRef}>
         Product Name
       </div>
