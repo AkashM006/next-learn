@@ -149,12 +149,7 @@ const Slider = ({ paddingBottom }) => {
   );
 };
 
-const BottomSheetContent = ({
-  maxHeight,
-  isExpanded,
-  setInitHeight,
-  initHeight,
-}) => {
+const BottomSheetContent = ({ maxHeight, setInitHeight, initHeight }) => {
   const titleRef = useRef(null);
   const contentRef = useRef(null);
 
@@ -166,11 +161,7 @@ const BottomSheetContent = ({
   }, []);
 
   return (
-    <BottomSheet
-      initialHeight={initHeight}
-      maxHeight={maxHeight}
-      isExpanded={isExpanded}
-    >
+    <BottomSheet initialHeight={initHeight} maxHeight={maxHeight}>
       <div className={styles.title} ref={titleRef}>
         Product Name
       </div>
