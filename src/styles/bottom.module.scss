@@ -64,7 +64,7 @@
     position: absolute;
     // bottom: 0;
 
-    top: 100%;
+    // top: 100%;
     left: 0;
     right: 0;
 
@@ -72,7 +72,8 @@
 
     text-align: left;
 
-    transition-duration: 100ms;
+    // transition-duration: 100ms;
+    // transition-delay: 100ms;
 
     // touch-action: none;
   }
@@ -100,4 +101,8 @@
       border: 1px solid $clr-secondary;
     }
   }
+}
+
+.top {
+  top: 70%;
 }

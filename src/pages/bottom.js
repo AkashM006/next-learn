@@ -1,7 +1,7 @@
 import styles from "@/styles/bottom.module.scss";
 import { useEffect, useRef, useState } from "react";
 
-function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
+function BottomSheet({ children, maxHeight = 0, top = 1 }) {
   const bottomSheetRef = useRef(null);
 
   const startY = useRef(0);
@@ -14,18 +14,18 @@ function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
 
   const isExpandedRef = useRef(false);
 
-  const translateTop = (height) => {
-    const translate = `calc(100% - ${height}px)`;
-    bottomSheetRef.current.style.top = translate;
-  };
-
-  const collapse = () => {
-    bottomSheetRef.current.style.overflow = "hidden";
-    translateTop(initialHeight);
-  };
+  const [initialHeight, setInitialHeight] = useState(0);
 
   const translate = (offset) => {
     bottomSheetRef.current.style.transform = `translateY(-${offset}px)`;
+  };
+
+  const disableScroll = () => {
+    bottomSheetRef.current.style.overflow = "hidden";
+  };
+
+  const enableScroll = () => {
+    bottomSheetRef.current.style.overflow = "auto";
   };
 
   const translateExpand = () => {
@@ -37,8 +37,10 @@ function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
     isExpandedRef.current = true;
     topReached.current = true;
 
-    bottomSheetRef.current.style.overflow = "auto";
-    document.body.style.overscrollBehaviorY = "none";
+    enableScroll();
+
+    document.documentElement.style.overflow = "none";
+    document.documentElement.style.overscrollBehaviorY = "none";
   };
 
   const translateCollapse = () => {
@@ -47,13 +49,29 @@ function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
     startY.current = 0;
 
     isExpandedRef.current = false;
-    bottomSheetRef.current.style.overflow = "hidden";
-    document.body.style.overscrollBehaviorY = "auto";
+
+    disableScroll();
+
+    document.documentElement.style.overflow = "auto";
+    document.documentElement.style.overscrollBehaviorY = "auto";
+  };
+
+  const transitionInit = () => {
+    if (bottomSheetRef.current) {
+      const parent = bottomSheetRef.current.offsetParent;
+      const parentHeight = parent.offsetHeight;
+      setInitialHeight(parentHeight * (1 - top));
+    }
+    setTimeout(() => {
+      if (bottomSheetRef.current) {
+        bottomSheetRef.current.style.transitionDuration = "150ms";
+      }
+    }, 0);
   };
 
   useEffect(() => {
-    collapse();
-  }, [maxHeight, initialHeight]);
+    transitionInit();
+  }, [bottomSheetRef]);
 
   const onTouchStart = (e) => {
     startY.current = e.touches[0].clientY;
@@ -68,29 +86,24 @@ function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
 
     newScroll.current = e.touches[0].clientY;
 
-    const isScrollingDown = newScroll.current > oldScroll.current;
-
-    if (isExpandedRef.current && !isScrollingDown) return;
-
     if (isExpandedRef.current && bottomSheetRef.current.scrollTop > 0) return;
-
-    if (
-      isExpandedRef.current &&
-      isScrollingDown &&
-      bottomSheetRef.current.scrollTop === 0 &&
-      !topReached.current
-    ) {
-      return;
-    }
 
     const temp = newY.current + startY.current - clientY;
     if (temp > maxTranslate || temp < 0) return;
+
+    const isMovingDown = temp < newY.current;
+
+    if (isMovingDown) {
+      disableScroll();
+    }
+
     newY.current += startY.current - clientY;
     startY.current = clientY;
 
     requestAnimationFrame(() => {
       translate(newY.current);
     });
+    oldScroll.current = newScroll.current;
   };
 
   const onTouchEnd = (e) => {
@@ -113,9 +126,10 @@ function BottomSheet({ initialHeight, children, maxHeight = 0 }) {
   return (
     <div
       ref={bottomSheetRef}
-      className={styles.modalBottomSheet}
+      className={`${styles.modalBottomSheet} swiper-no-swiping`}
       style={{
         maxHeight: `${maxHeight}px`,
+        top: `${top * 100}%`,
       }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
@@ -144,34 +158,13 @@ const Slider = ({ paddingBottom }) => {
   );
 };
 
-const BottomSheetContent = ({
-  maxHeight,
-  isExpanded,
-  setInitHeight,
-  initHeight,
-}) => {
-  const titleRef = useRef(null);
-  const contentRef = useRef(null);
-
-  useEffect(() => {
-    const contentRect = contentRef.current.getBoundingClientRect();
-    const titleRect = titleRef.current.getBoundingClientRect();
-    const offset = contentRect.top - titleRect.top;
-    setInitHeight(offset);
-  }, []);
-
+const BottomSheetContent = ({ maxHeight }) => {
   return (
-    <BottomSheet
-      initialHeight={initHeight}
-      maxHeight={maxHeight}
-      isExpanded={isExpanded}
-    >
-      <div className={styles.title} ref={titleRef}>
-        Product Name
-      </div>
+    <BottomSheet maxHeight={maxHeight} top={0.7}>
+      <div className={styles.title}>Product Name</div>
       <div>$120.00</div>
       <div className={styles.button}>Add To Cart</div>
-      <div className={styles.content} ref={contentRef}>
+      <div className={styles.content}>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris non est
         vitae risus interdum vestibulum non vitae nulla. Integer mollis nibh id
         dolor varius interdum. In eget tincidunt enim. Nam ac finibus ligula.
@@ -211,41 +204,28 @@ const BottomSheetContent = ({
   );
 };
 
-export default function Bottom() {
+export default function Item({ id }) {
   const heightRef = useRef(null);
   const [height, setHeight] = useState(0);
-  const [expanded, setExpanded] = useState(false);
-  const [initHeight, setInitHeight] = useState(0);
 
   useEffect(() => {
     const { height } = heightRef.current.getBoundingClientRect();
     setHeight(height - 10);
   }, []);
 
-  const onBottomSheetToggle = () => {
-    setExpanded((prev) => !prev);
-  };
-
   return (
     <div className={styles.bottom}>
       <div className={styles.bottomContainer}>
         <div className={styles.contentContainer}>
           <div className={styles.header}>
-            Header
-            <div className={styles.open} onClick={onBottomSheetToggle}>
-              Toggle
-            </div>
+            Header: {id}
+            <div className={styles.open}>Toggle</div>
           </div>
           <div ref={heightRef} className={styles.body}>
-            <Slider paddingBottom={initHeight} />
+            <Slider paddingBottom={0} />
           </div>
         </div>
-        <BottomSheetContent
-          isExpanded={expanded}
-          maxHeight={height}
-          initHeight={initHeight}
-          setInitHeight={setInitHeight}
-        />
+        <BottomSheetContent maxHeight={height} />
       </div>
     </div>
   );
